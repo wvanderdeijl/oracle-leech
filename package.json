@@ -4,7 +4,7 @@
     "description": "Experiment of we can sync Oracle database table(s) using Continuous Query Notification",
     "main": "index.js",
     "scripts": {
-        "start": "cd instantclient_12_2 && node ../index",
+        "start": "cd instantclient_12_2 && ts-node ../index.ts",
         "test": "echo \"Error: no test specified\" && exit 1"
     },
     "repository": {
@@ -19,5 +19,11 @@
     "homepage": "https://github.com/wvanderdeijl/oracle-leech#readme",
     "dependencies": {
         "oracledb": "^3.0.1"
+    },
+    "devDependencies": {
+        "@types/oracledb": "^1.11.34",
+        "ts-node": "^7.0.1",
+        "tslint": "^5.11.0",
+        "typescript": "^3.1.6"
     }
 }
