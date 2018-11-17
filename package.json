@@ -1,0 +1,23 @@
+{
+    "name": "oracle-leech",
+    "version": "1.0.0",
+    "description": "Experiment of we can sync Oracle database table(s) using Continuous Query Notification",
+    "main": "index.js",
+    "scripts": {
+        "start": "cd instantclient_12_2 && node ../index",
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/wvanderdeijl/oracle-leech.git"
+    },
+    "author": "",
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/wvanderdeijl/oracle-leech/issues"
+    },
+    "homepage": "https://github.com/wvanderdeijl/oracle-leech#readme",
+    "dependencies": {
+        "oracledb": "^3.0.1"
+    }
+}

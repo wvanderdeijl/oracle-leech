@@ -1,0 +1,12 @@
+version: '3'
+services:
+  mock-db:
+    # see https://hub.docker.com/r/wnameless/oracle-xe-11g/
+    image: wnameless/oracle-xe-11g
+    environment:
+      - ORACLE_ALLOW_REMOTE=true
+    ports:
+      - "1521:1521" # sqlnet listener
+      # apex web user interface (http://localhost:8080/apex/apex_admin with user admin and password admin)
+      # password has to be changed on first login, we typically use Oracle_11g
+      - "8080:8080"
