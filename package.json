@@ -4,7 +4,7 @@
     "description": "Experiment of we can sync Oracle database table(s) using Continuous Query Notification",
     "main": "index.js",
     "scripts": {
-        "start": "cd instantclient_12_2 && ts-node ../index.ts",
+        "start": "cd instantclient_12_2 && ts-node --transpile-only ../index.ts",
         "test": "echo \"Error: no test specified\" && exit 1"
     },
     "repository": {

@@ -1,12 +1,26 @@
 version: '3'
 services:
-  mock-db:
-    # see https://hub.docker.com/r/wnameless/oracle-xe-11g/
-    image: wnameless/oracle-xe-11g
-    environment:
-      - ORACLE_ALLOW_REMOTE=true
-    ports:
-      - "1521:1521" # sqlnet listener
-      # apex web user interface (http://localhost:8080/apex/apex_admin with user admin and password admin)
-      # password has to be changed on first login, we typically use Oracle_11g
-      - "8080:8080"
+
+  # we need this to work with DB version 11.2.0.4 !!!
+  # does not seem to work with XE
+
+  # docker-compose exec oracle tail -f /u01/app/oracle/diag/rdbms/ee/EE/trace/alert_EE.log
+  # docker-compose exec oracle sqlplus system/oracle
+  oracle:
+    image: sath89/oracle-ee-11g
+
+  # oracle:
+  #   image: container-registry.oracle.com/database/enterprise:12.2.0.1-slim
+
+  # docker-compose exec node bash
+  # > npx ts-node ./index.ts
+  node:
+    # image: node:10
+    # command: ["npm", "start"]
+    # command: ["npm", "run", "loop"]
+    command: tail -f /dev/null
+    build: .
+    volumes:
+      - .:/usr/src/app
+    links:
+      - oracle
