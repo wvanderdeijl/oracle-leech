@@ -1,0 +1,12 @@
+PID 436 received SIGSEGV for address: 0x0
+/usr/src/app/node_modules/segfault-handler/build/Release/segfault-handler.node(+0x2b90)[0x7f56a37dfb90]
+/lib/x86_64-linux-gnu/libpthread.so.0(+0xf890)[0x7f56c1554890]
+/usr/src/app/node_modules/oracledb/build/Release/oracledb.node(_ZN15njsSubscription13CreateMessageEP16dpiSubscrMessage+0x49)[0x7f56ba5ab879]
+/usr/src/app/node_modules/oracledb/build/Release/oracledb.node(_ZN15njsSubscription19ProcessNotificationEP10uv_async_s+0x65)[0x7f56ba5ac365]
+node[0xa4732f]
+node[0xa58018]
+node(uv_run+0x14b)[0xa47c6b]
+node(_ZN4node5StartEPN2v87IsolateEPNS_11IsolateDataERKSt6vectorISsSaISsEES9_+0x565)[0x8e5255]
+node(_ZN4node5StartEiPPc+0x462)[0x8e34a2]
+/lib/x86_64-linux-gnu/libc.so.6(__libc_start_main+0xf5)[0x7f56c11bbb45]
+node[0x89dd45]

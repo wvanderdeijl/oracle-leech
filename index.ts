@@ -1,66 +1,42 @@
+// tslint:disable-next-line:no-reference
+/// <reference path="./types.d.ts" />
+
 import oracledb from 'oracledb';
+import promiseRetry from 'promise-retry';
 
-// tslint:disable:no-console
+import SegfaultHandler from 'segfault-handler';
+SegfaultHandler.registerHandler('crash.log');
 
-// const config = {
-//     connectString: 'db/xe',
-//     password: 'oracle',
-//     user: 'system',
-// };
-const oracleConfig: oracledb.IConnectionAttributes = {
-    connectString: 'oracle/ORCLCDB.localdomain',
-    password: 'Oradoc_db1',
-    user: 'system',
-};
-const xeConfig: oracledb.IConnectionAttributes = {
-    connectString: 'oracle/xe',
-    password: 'oracle',
-    user: 'system',
-};
-const eeConfig: oracledb.IConnectionAttributes = {
+const config: oracledb.IConnectionAttributes = {
     connectString: 'oracle/EE.oracle.docker',
     password: 'oracle',
     user: 'system',
 };
-const config = eeConfig;
 
 oracledb.autoCommit = true;
 
 const cqn: oracledb.ISubscribeOptions = {
     callback: cqnCallback,
-    groupingClass: oracledb.SUBSCR_GROUPING_CLASS_TIME, // Group notifications in batches
-    groupingType: oracledb.SUBSCR_GROUPING_TYPE_SUMMARY, // only send summary
-    groupingValue: 5, // batches covering X seconds intervals
-    port: 33333, // always use same port number so we replace any existing CQN subscriptions after a crash
     qos: oracledb.SUBSCR_QOS_ROWIDS, // Return ROWIDs in the notification message
-    // tslint:disable-next-line:no-bitwise
-    // qos: oracledb.SUBSCR_QOS_QUERY | oracledb.SUBSCR_QOS_ROWIDS, // Return ROWIDs in the notification message
     sql: 'select * from demo',
-    // timeout: 30, // stop after X seconds
 };
 
-const interval = setInterval(() => {
-    console.log('waiting...');
-    // updateData();
-}, 5000);
+// tslint:disable:no-console
 
 runTest();
 
-let deregister = () => { };
+let deregister = () => { /* noop */ };
 
-/*
- performance:
- - no active CQN subscription
-   - 100.000 rows in 16 seconds
-   - 1.000.000 rows in 156 seconds
- - no grouping
-   - without rowID
-     - 100.000 rows in 15 seconds
-   - with rowID
-     - 100.000 rows in ?? seconds
- */
 async function runTest() {
-    const conn = await oracledb.getConnection({ ...config, events: true });
+    const conn = await promiseRetry({ retries: 100 }, async (retry) => {
+        console.log('trying to get connection...');
+        try {
+            return await oracledb.getConnection({ ...config, events: true });
+        } catch (e) {
+            retry(e);
+            throw e;
+        }
+    });
     try {
 
         try {
@@ -69,36 +45,18 @@ async function runTest() {
         } catch { /* noop */ }
 
         await conn.execute(`
-            create table demo (id constraint demo_pk primary key, txt) as select rownum, 'x' from xmltable('1 to 1000000')
+            create table demo (id constraint demo_pk primary key, txt)
+            as select rownum, 'x' from xmltable('1 to 1000000')
         `);
         console.log('created demo table');
 
         await conn.subscribe('mysub', cqn);
         console.log('subscription created');
-        deregister = () => { conn.unsubscribe('mysub'); }
+        deregister = () => { conn.unsubscribe('mysub'); };
 
-        const result = await conn.execute('SELECT * FROM DUAL');
-        console.log(result.rows);
-
-        // await updateData();
     } catch (e) {
         console.error(e);
-        clearInterval(interval);
         throw e;
-    } finally {
-        await conn.close();
-    }
-}
-
-async function updateData() {
-    const conn = await oracledb.getConnection(config);
-    try {
-        // console.log((await conn.execute('select max(id) from demo')).rows);
-        console.log('updating demo data...');
-        const start = Date.now();
-        await conn.execute('update demo set id = id - 1');
-        // await conn.execute('update demo set id = id - 1 where rownum < 10');
-        console.log(`demo table updated in ${Math.round((Date.now() - start) / 1000)} secs`);
     } finally {
         await conn.close();
     }
@@ -106,34 +64,6 @@ async function updateData() {
 
 function cqnCallback(message: oracledb.ISubscriptionMessage) {
     console.log(`>> callback of type ${message.type}`);
-
-    if (message.type === oracledb.SUBSCR_EVENT_TYPE_DEREG) {
-        console.log('>>>> goodbye');
-        return clearInterval(interval);
-    }
-
-    console.log(`>>>> callback came from transaction ${message.txId.toString('hex')} at database ${message.dbName}`);
-    if (message.type === oracledb.SUBSCR_EVENT_TYPE_OBJ_CHANGE) {
-        // tslint:disable-next-line:max-line-length
-        console.log(`>>>> ${message.tables.length} tables changed with a total of ${message.tables.map((t) => t.rows && t.rows.length || 0).reduce((a, b) => a + b)} rows`);
-        printTableChange(message.tables);
-    }
-    if (message.type === oracledb.SUBSCR_EVENT_TYPE_QUERY_CHANGE) {
-        for (const query of message.queries) {
-            printTableChange(query.tables);
-        }
-    }
-}
-
-function printTableChange(change: oracledb.ITableChangeNotification[]) {
-    for (const table of change) {
-        console.log(`>>>> table ${table.name} changed by operation ${table.operation}`);
-        if (table.rows) {
-            for (const row of table.rows) {
-                console.log(`>>>>>> row ${row.rowid} changed by operation ${row.operation}`);
-            }
-        }
-    }
 }
 
 function terminate() {

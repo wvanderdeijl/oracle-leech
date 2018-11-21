@@ -1,0 +1,21 @@
+update demo set txt='f' where rownum < 3;
+commit;
+update demo set txt='f' where rownum < 3;
+commit;
+update demo set txt='f' where rownum < 3;
+commit;
+update demo set txt='f' where rownum < 3;
+commit;
+update demo set txt='f' where rownum < 3;
+commit;
+update demo set txt='f' where rownum < 3;
+commit;
+update demo set txt='f' where rownum < 3;
+commit;
+update demo set txt='f' where rownum < 3;
+commit;
+update demo set txt='f' where rownum < 3;
+commit;
+update demo set txt='f' where rownum < 3;
+commit;
+exit
