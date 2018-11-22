@@ -39,6 +39,11 @@ async function runTest() {
     });
     try {
 
+        console.log('node version', process.version);
+        console.log('node architecture', process.arch);
+        console.log('node-oracledb version', oracledb.versionString);
+        console.log('oracle server version', conn.oracleServerVersionString);
+
         try {
             await conn.execute('drop table demo purge');
             console.log('dropped existing demo table');
@@ -84,6 +89,16 @@ declare module 'oracledb' {
     }
 
     interface IConnection {
+        /**
+         * This readonly property gives a string representation of the Oracle database version
+         * which is useful for display.
+         *
+         * Note if you connect to Oracle Database 18, the version will only be accurate if
+         * node-oracledb is also using Oracle Database 18 client libraries. Otherwise it will show
+         * the base release such as `18.0.0.0.0` instead of `18.3.0.0.0`.
+         */
+        readonly oracleServerVersionString: string;
+
         subscribe(name: string, options: ISubscribeOptions, callback: (err: any) => void): void;
         subscribe(name: string, options: ISubscribeOptions): IPromise<void>;
         unsubscribe(name: string, callback: (err: any) => void): void;
@@ -251,6 +266,17 @@ declare module 'oracledb' {
         /** a string containing the ROWID of the row that was affected */
         rowid: string;
     }
+
+    /**
+     * This readonly property gives a string representation of the node-oracledb version, including
+     * the version suffix if one is present
+     */
+    const versionString: string;
+    /**
+     * This readonly property gives a string representing the version suffix (e.g. “-dev” or “-beta”)
+     * or an empty string if no version suffix is present
+     */
+    const versionSuffix: string;
 
     // https://oracle.github.io/node-oracledb/doc/api.html#oracledbconstantssubscription
 
