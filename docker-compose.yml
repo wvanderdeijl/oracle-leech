@@ -18,9 +18,9 @@ services:
     # image: node:10
     # command: ["npm", "start"]
     # command: ["npm", "run", "loop"]
-    command: sh -c "npm install && npm start"
+    # command: sh -c "npm install && npm start"
     build: .
-    volumes:
-      - .:/usr/src/app
+    # volumes:
+    #   - .:/usr/src/app
     links:
       - oracle

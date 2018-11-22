@@ -14,3 +14,11 @@ RUN unzip instantclient-basiclite-linux.x64-18.3.0.0.0dbru.zip && \
     mv instantclient_18_3 /opt/oracle && \
     sh -c "echo /opt/oracle/instantclient_18_3 > /etc/ld.so.conf.d/oracle-instantclient.conf" && \
     ldconfig
+
+COPY package*.json ./
+
+RUN npm install
+
+COPY . ./
+
+CMD [ "npm", "start" ]
